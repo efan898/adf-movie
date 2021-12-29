@@ -1,0 +1,27 @@
+{
+	"name": "integrationRuntime2",
+	"properties": {
+		"type": "Managed",
+		"typeProperties": {
+			"computeProperties": {
+				"location": "East US",
+				"nodeSize": "Standard_D8_v3",
+				"numberOfNodes": 2,
+				"maxParallelExecutionsPerNode": 8
+			},
+			"ssisProperties": {
+				"catalogInfo": {
+					"catalogServerEndpoint": "wwi-server.database.windows.net",
+					"catalogAdminUserName": "efan898",
+					"catalogAdminPassword": {
+						"type": "SecureString",
+						"value": "**********"
+					},
+					"catalogPricingTier": "Basic"
+				},
+				"edition": "Standard",
+				"licenseType": "LicenseIncluded"
+			}
+		}
+	}
+}
