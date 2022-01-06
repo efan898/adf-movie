@@ -1,0 +1,39 @@
+{
+	"name": "orders_orderlines",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ODS_orders",
+						"type": "DatasetReference"
+					},
+					"name": "orders"
+				},
+				{
+					"dataset": {
+						"referenceName": "ODS_orderlines",
+						"type": "DatasetReference"
+					},
+					"name": "orderlines"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "orders_orderlines",
+						"type": "DatasetReference"
+					},
+					"name": "ordersNew"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Join1"
+				}
+			],
+			"script": "source(output(\n\t\tID as integer,\n\t\tOrderID as integer,\n\t\tCustomerID as integer,\n\t\tSalespersonPersonID as integer,\n\t\tPickedByPersonID as integer,\n\t\tContactPersonID as integer,\n\t\tBackorderOrderID as integer,\n\t\tOrderDate as date,\n\t\tExpectedDeliveryDate as date,\n\t\tCustomerPurchaseOrderNumber as string,\n\t\tIsUndersupplyBackordered as boolean,\n\t\tComments as string,\n\t\tDeliveryInstructions as string,\n\t\tInternalComments as string,\n\t\tPickingCompletedWhen as timestamp,\n\t\tLastEditedBy as integer,\n\t\tLastEditedWhen as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> orders\nsource(output(\n\t\tID as integer,\n\t\tOrderLineID as integer,\n\t\tOrderID as integer,\n\t\tStockItemID as integer,\n\t\tDescription as string,\n\t\tPackageTypeID as integer,\n\t\tQuantity as integer,\n\t\tUnitPrice as decimal(18,2),\n\t\tTaxRate as decimal(18,3),\n\t\tPickedQuantity as integer,\n\t\tPickingCompletedWhen as timestamp,\n\t\tLastEditedBy as integer,\n\t\tLastEditedWhen as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> orderlines\norders, orderlines join(orders@OrderID == orderlines@OrderID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1\nJoin1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tID = orders@ID,\n\t\tOrderID = orders@OrderID,\n\t\tCustomerID,\n\t\tComments,\n\t\tStockItemID,\n\t\tDescription\n\t)) ~> ordersNew"
+		}
+	}
+}
