@@ -1,0 +1,16 @@
+{
+	"name": "orders_orderlines",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "wwi_integration",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "new_orders"
+		}
+	}
+}
