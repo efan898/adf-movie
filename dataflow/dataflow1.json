@@ -1,0 +1,32 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ODS_cities",
+						"type": "DatasetReference"
+					},
+					"name": "cities"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "int_cities",
+						"type": "DatasetReference"
+					},
+					"name": "intCities"
+				}
+			],
+			"transformations": [
+				{
+					"name": "addingColumn"
+				}
+			],
+			"script": "source(output(\n\t\tID as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tStateProvinceID as integer,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> cities\ncities derive(isActive = 1) ~> addingColumn\naddingColumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> intCities"
+		}
+	}
+}
