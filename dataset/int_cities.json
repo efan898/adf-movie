@@ -1,0 +1,12 @@
+{
+	"name": "int_cities",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "wwi_integration",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
