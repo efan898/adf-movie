@@ -1,5 +1,5 @@
 {
-	"name": "orders_orderlines",
+	"name": "INT_orders",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "wwi_integration",
