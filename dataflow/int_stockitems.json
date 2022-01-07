@@ -1,0 +1,64 @@
+{
+	"name": "int_stockitems",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ODS_stockitems",
+						"type": "DatasetReference"
+					},
+					"name": "stockitems"
+				},
+				{
+					"dataset": {
+						"referenceName": "INT_stockitems",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "INT_stockitems",
+						"type": "DatasetReference"
+					},
+					"name": "intStockitems1"
+				},
+				{
+					"dataset": {
+						"referenceName": "INT_stockitems",
+						"type": "DatasetReference"
+					},
+					"name": "intStockitems2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "addingColumn"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Lookup1"
+				},
+				{
+					"name": "ExistingRows"
+				},
+				{
+					"name": "Select2"
+				},
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"script": "source(output(\n\t\tID as integer,\n\t\tStockItemID as integer,\n\t\tStockItemName as string,\n\t\tSupplierID as integer,\n\t\tColorID as integer,\n\t\tUnitPackageID as integer,\n\t\tOuterPackageID as integer,\n\t\tBrand as string,\n\t\tSize as string,\n\t\tLeadTimeDays as integer,\n\t\tQuantityPerOuter as integer,\n\t\tIsChillerStock as boolean,\n\t\tBarcode as string,\n\t\tTaxRate as decimal(18,3),\n\t\tUnitPrice as decimal(18,2),\n\t\tRecommendedRetailPrice as decimal(18,2),\n\t\tTypicalWeightPerUnit as decimal(18,3),\n\t\tMarketingComments as string,\n\t\tInternalComments as string,\n\t\tPhoto as binary,\n\t\tCustomFields as string,\n\t\tTags as string,\n\t\tSearchDetails as string,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> stockitems\nsource(output(\n\t\tStockItemKey as integer,\n\t\tStockItemID as integer,\n\t\tStockItemName as string,\n\t\tSupplierID as integer,\n\t\tColorID as integer,\n\t\tUnitPackageID as integer,\n\t\tOuterPackageID as integer,\n\t\tBrand as string,\n\t\tSize as string,\n\t\tLeadTimeDays as integer,\n\t\tQuantityPerOuter as integer,\n\t\tIsChillerStock as boolean,\n\t\tBarcode as string,\n\t\tTaxRate as decimal(18,3),\n\t\tUnitPrice as decimal(18,2),\n\t\tRecommendedRetailPrice as decimal(18,2),\n\t\tTypicalWeightPerUnit as decimal(18,3),\n\t\tMarketingComments as string,\n\t\tInternalComments as string,\n\t\tPhoto as binary,\n\t\tCustomFields as string,\n\t\tTags as string,\n\t\tSearchDetails as string,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> source1\nstockitems derive(isActive = 1) ~> addingColumn\nsource1 select(mapColumn(\n\t\tSQLStockItemKey = StockItemKey,\n\t\tSQLStockItemID = StockItemID,\n\t\tSQLStockItemName = StockItemName,\n\t\tSQLSupplierID = SupplierID,\n\t\tSQLColorID = ColorID,\n\t\tSQLUnitPackageID = UnitPackageID,\n\t\tSQLOuterPackageID = OuterPackageID,\n\t\tSQLBrand = Brand,\n\t\tSQLSize = Size,\n\t\tSQLLeadTimeDays = LeadTimeDays,\n\t\tSQLQuantityPerOuter = QuantityPerOuter,\n\t\tSQLIsChillerStock = IsChillerStock,\n\t\tSQLBarcode = Barcode,\n\t\tSQLTaxRate = TaxRate,\n\t\tSQLUnitPrice = UnitPrice,\n\t\tSQLRecommendedRetailPrice = RecommendedRetailPrice,\n\t\tSQLTypicalWeightPerUnit = TypicalWeightPerUnit,\n\t\tSQLMarketingComments = MarketingComments,\n\t\tSQLInternalComments = InternalComments,\n\t\tSQLPhoto = Photo,\n\t\tSQLCustomFields = CustomFields,\n\t\tSQLTags = Tags,\n\t\tSQLSearchDetails = SearchDetails,\n\t\tSQLLastEditedBy = LastEditedBy,\n\t\tSQLValidFrom = ValidFrom,\n\t\tSQLValidTo = ValidTo,\n\t\tSQLCurrentFlag = CurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nstockitems, Select1 lookup(StockItemID == SQLStockItemID,\n\tmultiple: true,\n\tbroadcast: 'auto')~> Lookup1\nLookup1 filter(!isNull(StockItemID)) ~> ExistingRows\nExistingRows select(mapColumn(\n\t\tSQLStockItemKey,\n\t\tSQLStockItemID,\n\t\tSQLStockItemName,\n\t\tSQLSupplierID,\n\t\tSQLColorID,\n\t\tSQLUnitPackageID,\n\t\tSQLOuterPackageID,\n\t\tSQLBrand,\n\t\tSQLSize,\n\t\tSQLLeadTimeDays,\n\t\tSQLQuantityPerOuter,\n\t\tSQLIsChillerStock,\n\t\tSQLBarcode,\n\t\tSQLTaxRate,\n\t\tSQLUnitPrice,\n\t\tSQLRecommendedRetailPrice,\n\t\tSQLTypicalWeightPerUnit,\n\t\tSQLMarketingComments,\n\t\tSQLInternalComments,\n\t\tSQLPhoto,\n\t\tSQLCustomFields,\n\t\tSQLTags,\n\t\tSQLSearchDetails,\n\t\tSQLLastEditedBy,\n\t\tSQLValidFrom,\n\t\tSQLValidTo,\n\t\tSQLCurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nSelect2 derive(SQLCurrentFlag = 0) ~> DerivedColumn1\nDerivedColumn1 alterRow(updateIf(1 ==1)) ~> AlterRow1\naddingColumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tStockItemKey as integer,\n\t\tStockItemID as integer,\n\t\tStockItemName as string,\n\t\tSupplierID as integer,\n\t\tColorID as integer,\n\t\tUnitPackageID as integer,\n\t\tOuterPackageID as integer,\n\t\tBrand as string,\n\t\tSize as string,\n\t\tLeadTimeDays as integer,\n\t\tQuantityPerOuter as integer,\n\t\tIsChillerStock as boolean,\n\t\tBarcode as string,\n\t\tTaxRate as decimal(18,3),\n\t\tUnitPrice as decimal(18,2),\n\t\tRecommendedRetailPrice as decimal(18,2),\n\t\tTypicalWeightPerUnit as decimal(18,3),\n\t\tMarketingComments as string,\n\t\tInternalComments as string,\n\t\tPhoto as binary,\n\t\tCustomFields as string,\n\t\tTags as string,\n\t\tSearchDetails as string,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> intStockitems1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tStockItemKey as integer,\n\t\tStockItemID as integer,\n\t\tStockItemName as string,\n\t\tSupplierID as integer,\n\t\tColorID as integer,\n\t\tUnitPackageID as integer,\n\t\tOuterPackageID as integer,\n\t\tBrand as string,\n\t\tSize as string,\n\t\tLeadTimeDays as integer,\n\t\tQuantityPerOuter as integer,\n\t\tIsChillerStock as boolean,\n\t\tBarcode as string,\n\t\tTaxRate as decimal(18,3),\n\t\tUnitPrice as decimal(18,2),\n\t\tRecommendedRetailPrice as decimal(18,2),\n\t\tTypicalWeightPerUnit as decimal(18,3),\n\t\tMarketingComments as string,\n\t\tInternalComments as string,\n\t\tPhoto as binary,\n\t\tCustomFields as string,\n\t\tTags as string,\n\t\tSearchDetails as string,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['StockItemKey'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tStockItemKey = SQLStockItemKey,\n\t\tStockItemID = SQLStockItemID,\n\t\tStockItemName = SQLStockItemName,\n\t\tSupplierID = SQLSupplierID,\n\t\tColorID = SQLColorID,\n\t\tUnitPackageID = SQLUnitPackageID,\n\t\tOuterPackageID = SQLOuterPackageID,\n\t\tBrand = SQLBrand,\n\t\tSize = SQLSize,\n\t\tLeadTimeDays = SQLLeadTimeDays,\n\t\tQuantityPerOuter = SQLQuantityPerOuter,\n\t\tIsChillerStock = SQLIsChillerStock,\n\t\tBarcode = SQLBarcode,\n\t\tTaxRate = SQLTaxRate,\n\t\tUnitPrice = SQLUnitPrice,\n\t\tRecommendedRetailPrice = SQLRecommendedRetailPrice,\n\t\tTypicalWeightPerUnit = SQLTypicalWeightPerUnit,\n\t\tMarketingComments = SQLMarketingComments,\n\t\tInternalComments = SQLInternalComments,\n\t\tPhoto = SQLPhoto,\n\t\tCustomFields = SQLCustomFields,\n\t\tTags = SQLTags,\n\t\tSearchDetails = SQLSearchDetails,\n\t\tLastEditedBy = SQLLastEditedBy,\n\t\tValidFrom = SQLValidFrom,\n\t\tValidTo = SQLValidTo,\n\t\tCurrentFlag = SQLCurrentFlag\n\t)) ~> intStockitems2"
+		}
+	}
+}
