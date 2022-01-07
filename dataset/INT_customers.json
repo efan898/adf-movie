@@ -56,6 +56,11 @@
 				"name": "CurrentFlag",
 				"type": "int",
 				"precision": 10
+			},
+			{
+				"name": "cityID",
+				"type": "int",
+				"precision": 10
 			}
 		],
 		"typeProperties": {
