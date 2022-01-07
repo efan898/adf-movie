@@ -1,5 +1,5 @@
 {
-	"name": "orders_orderlines",
+	"name": "int_orders",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
