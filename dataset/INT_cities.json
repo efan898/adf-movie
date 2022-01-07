@@ -1,5 +1,5 @@
 {
-	"name": "int_cities",
+	"name": "INT_cities",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "wwi_integration",

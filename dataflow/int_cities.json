@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "int_cities",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -13,7 +13,7 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "int_cities",
+						"referenceName": "INT_cities",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -22,14 +22,14 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "int_cities",
+						"referenceName": "INT_cities",
 						"type": "DatasetReference"
 					},
 					"name": "intCities1"
 				},
 				{
 					"dataset": {
-						"referenceName": "int_cities",
+						"referenceName": "INT_cities",
 						"type": "DatasetReference"
 					},
 					"name": "intCities2"
@@ -58,7 +58,7 @@
 					"name": "AlterRow1"
 				}
 			],
-			"script": "source(output(\n\t\tID as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tStateProvinceID as integer,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> cities\nsource(output(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> source1\ncities derive(isActive = 1) ~> addingColumn\nsource1 select(mapColumn(\n\t\tSQLCityKey = CityKey,\n\t\tSQLCityID = CityID,\n\t\tSQLCityName = CityName,\n\t\tSQLLocation = Location,\n\t\tSQLLatestRecordedPopulation = LatestRecordedPopulation,\n\t\tSQLLastEditedBy = LastEditedBy,\n\t\tSQLValidFrom = ValidFrom,\n\t\tSQLValidTo = ValidTo,\n\t\tSQLCurrentFlag = CurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\ncities, Select1 lookup(CityID == SQLCityID,\n\tmultiple: true,\n\tbroadcast: 'auto')~> Lookup1\nLookup1 filter(!isNull(CityID)) ~> ExistingRows\nExistingRows select(mapColumn(\n\t\tSQLCityKey,\n\t\tSQLCityID,\n\t\tSQLCityName,\n\t\tSQLLocation,\n\t\tSQLLatestRecordedPopulation,\n\t\tSQLLastEditedBy,\n\t\tSQLValidFrom,\n\t\tSQLValidTo,\n\t\tSQLCurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nSelect2 derive(SQLCurrentFlag = 0) ~> DerivedColumn1\nDerivedColumn1 alterRow(updateIf(1 ==1)) ~> AlterRow1\naddingColumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 2,\n\terrorHandlingOption: 'stopOnFirstError') ~> intCities1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['CityKey'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tCityKey = SQLCityKey,\n\t\tCityID = SQLCityID,\n\t\tCityName = SQLCityName,\n\t\tLocation = SQLLocation,\n\t\tLatestRecordedPopulation = SQLLatestRecordedPopulation,\n\t\tLastEditedBy = SQLLastEditedBy,\n\t\tValidFrom = SQLValidFrom,\n\t\tValidTo = SQLValidTo,\n\t\tCurrentFlag = SQLCurrentFlag\n\t)) ~> intCities2"
+			"script": "source(output(\n\t\tID as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tStateProvinceID as integer,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> cities\nsource(output(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> source1\ncities derive(isActive = 1) ~> addingColumn\nsource1 select(mapColumn(\n\t\tSQLCityKey = CityKey,\n\t\tSQLCityID = CityID,\n\t\tSQLCityName = CityName,\n\t\tSQLLocation = Location,\n\t\tSQLLatestRecordedPopulation = LatestRecordedPopulation,\n\t\tSQLLastEditedBy = LastEditedBy,\n\t\tSQLValidFrom = ValidFrom,\n\t\tSQLValidTo = ValidTo,\n\t\tSQLCurrentFlag = CurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\ncities, Select1 lookup(CityID == SQLCityID,\n\tmultiple: true,\n\tbroadcast: 'auto')~> Lookup1\nLookup1 filter(!isNull(CityID)) ~> ExistingRows\nExistingRows select(mapColumn(\n\t\tSQLCityKey,\n\t\tSQLCityID,\n\t\tSQLCityName,\n\t\tSQLLocation,\n\t\tSQLLatestRecordedPopulation,\n\t\tSQLLastEditedBy,\n\t\tSQLValidFrom,\n\t\tSQLValidTo,\n\t\tSQLCurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nSelect2 derive(SQLCurrentFlag = 0) ~> DerivedColumn1\nDerivedColumn1 alterRow(updateIf(1==1)) ~> AlterRow1\naddingColumn sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 2,\n\terrorHandlingOption: 'stopOnFirstError') ~> intCities1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['CityKey'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tCityKey = SQLCityKey,\n\t\tCityID = SQLCityID,\n\t\tCityName = SQLCityName,\n\t\tLocation = SQLLocation,\n\t\tLatestRecordedPopulation = SQLLatestRecordedPopulation,\n\t\tLastEditedBy = SQLLastEditedBy,\n\t\tValidFrom = SQLValidFrom,\n\t\tValidTo = SQLValidTo,\n\t\tCurrentFlag = SQLCurrentFlag\n\t)) ~> intCities2"
 		}
 	}
 }
