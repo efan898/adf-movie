@@ -1,0 +1,71 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "INT_customers",
+						"type": "DatasetReference"
+					},
+					"name": "customers"
+				},
+				{
+					"dataset": {
+						"referenceName": "INT_cities",
+						"type": "DatasetReference"
+					},
+					"name": "cities"
+				},
+				{
+					"dataset": {
+						"referenceName": "INT_orders",
+						"type": "DatasetReference"
+					},
+					"name": "orders"
+				},
+				{
+					"dataset": {
+						"referenceName": "INT_stockitems",
+						"type": "DatasetReference"
+					},
+					"name": "stockitems"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "FACT_orders",
+						"type": "DatasetReference"
+					},
+					"name": "fact"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Join1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Join2"
+				},
+				{
+					"name": "Select2"
+				},
+				{
+					"name": "Join3"
+				},
+				{
+					"name": "Select3"
+				},
+				{
+					"name": "DerivedColumn1"
+				}
+			],
+			"script": "source(output(\n\t\tCustomerKey as integer,\n\t\tCustomerID as integer,\n\t\tCustomerName as string,\n\t\tBillToCustomer as string,\n\t\tPrimaryContactPerson as string,\n\t\tPhoneNumber as string,\n\t\tFaxNumber as string,\n\t\tDeliveryPostalCode as string,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer,\n\t\tcityID as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> customers\nsource(output(\n\t\tCityKey as integer,\n\t\tCityID as integer,\n\t\tCityName as string,\n\t\tLocation as binary,\n\t\tLatestRecordedPopulation as long,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> cities\nsource(output(\n\t\tWWIOrderID as integer,\n\t\tCustomerID as integer,\n\t\tBackorderOrderID as integer,\n\t\tOrderDate as date,\n\t\tPickingDate as timestamp,\n\t\tStockItemID as integer,\n\t\tDescription as string,\n\t\tQuantity as integer,\n\t\tUnitPrice as decimal(18,2),\n\t\tTaxRate as decimal(18,3),\n\t\tOrderKey as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> orders\nsource(output(\n\t\tStockItemKey as integer,\n\t\tStockItemID as integer,\n\t\tStockItemName as string,\n\t\tSupplierID as integer,\n\t\tColorID as integer,\n\t\tUnitPackageID as integer,\n\t\tOuterPackageID as integer,\n\t\tBrand as string,\n\t\tSize as string,\n\t\tLeadTimeDays as integer,\n\t\tQuantityPerOuter as integer,\n\t\tIsChillerStock as boolean,\n\t\tBarcode as string,\n\t\tTaxRate as decimal(18,3),\n\t\tUnitPrice as decimal(18,2),\n\t\tRecommendedRetailPrice as decimal(18,2),\n\t\tTypicalWeightPerUnit as decimal(18,3),\n\t\tMarketingComments as string,\n\t\tInternalComments as string,\n\t\tPhoto as binary,\n\t\tCustomFields as string,\n\t\tTags as string,\n\t\tSearchDetails as string,\n\t\tLastEditedBy as integer,\n\t\tValidFrom as timestamp,\n\t\tValidTo as timestamp,\n\t\tCurrentFlag as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> stockitems\ncustomers, cities join(customers@cityID == cities@CityID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1\nJoin1 select(mapColumn(\n\t\tCustomerKey,\n\t\tCustomerID,\n\t\tCustomerName,\n\t\tBillToCustomer,\n\t\tPrimaryContactPerson,\n\t\tPhoneNumber,\n\t\tFaxNumber,\n\t\tDeliveryPostalCode,\n\t\tValidFrom = customers@ValidFrom,\n\t\tValidTo = customers@ValidTo,\n\t\tCurrentFlag = customers@CurrentFlag,\n\t\tCityKey,\n\t\tCityID = cities@CityID,\n\t\tCityName,\n\t\tLocation,\n\t\tLatestRecordedPopulation,\n\t\tLastEditedBy,\n\t\tValidFrom = cities@ValidFrom,\n\t\tValidTo = cities@ValidTo,\n\t\tCurrentFlag = cities@CurrentFlag\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1, orders join(Select1@CustomerID == orders@CustomerID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join2\nJoin2 select(mapColumn(\n\t\tCustomerKey,\n\t\tCustomerID = Select1@CustomerID,\n\t\tCustomerName,\n\t\tBillToCustomer,\n\t\tPrimaryContactPerson,\n\t\tPhoneNumber,\n\t\tFaxNumber,\n\t\tDeliveryPostalCode,\n\t\tValidFrom,\n\t\tValidTo,\n\t\tCurrentFlag,\n\t\tCityKey,\n\t\tCityID,\n\t\tCityName,\n\t\tLocation,\n\t\tLatestRecordedPopulation,\n\t\tLastEditedBy,\n\t\tWWIOrderID,\n\t\tCustomerID = orders@CustomerID,\n\t\tBackorderOrderID,\n\t\tOrderDate,\n\t\tPickingDate,\n\t\tStockItemID,\n\t\tDescription,\n\t\tQuantity,\n\t\tUnitPrice,\n\t\tTaxRate,\n\t\tOrderKey\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select2\nSelect2, stockitems join(Select2@StockItemID == stockitems@StockItemID,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join3\nJoin3 select(mapColumn(\n\t\tOrderKey,\n\t\tCityKey,\n\t\tCustomerKey,\n\t\tStockItemKey,\n\t\tWWIOrderID,\n\t\tOrderDate,\n\t\tPickingDate,\n\t\tBackorderOrderID,\n\t\tDescription,\n\t\tQuantity,\n\t\tUnitPrice = Select2@UnitPrice,\n\t\tTaxRate = Select2@TaxRate\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select3\nSelect3 derive(TotalExcludingTax = UnitPrice*Quantity,\n\t\tTaxAmount = (UnitPrice*Quantity)*TaxRate,\n\t\tTotalIncludingTax = (UnitPrice*Quantity)*(1+TaxRate)) ~> DerivedColumn1\nDerivedColumn1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tOrderKey as integer,\n\t\tCityKey as integer,\n\t\tCustomerKey as integer,\n\t\tStockItemKey as integer,\n\t\tWWIOrderID as integer,\n\t\tOrderDate as date,\n\t\tPickingDate as timestamp,\n\t\tBackorderOrderID as integer,\n\t\tDescription as string,\n\t\tQuantity as integer,\n\t\tUnitPrice as decimal(18,2),\n\t\tTaxRate as decimal(18,3),\n\t\tTotalExcludingTax as decimal(18,3),\n\t\tTaxAmount as decimal(18,3),\n\t\tTotalIncludingTax as decimal(18,3)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> fact"
+		}
+	}
+}
